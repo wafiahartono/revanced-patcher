@@ -1,0 +1,8 @@
+{
+	"com.google.android.apps.youtube.music": {
+		"download_url": "https://www.apkmirror.com/apk/google-inc/youtube-music"
+	},
+	"com.google.android.youtube": {
+		"download_url": "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$version-release"
+	}
+}

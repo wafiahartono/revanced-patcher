@@ -4,8 +4,9 @@ Param(
     [ArgumentCompleter(
         {
             Param($cmd, $param, $word, $ast, $fbParams)
-            return Get-ChildItem $PSScriptRoot -Directory -Name -Filter "$word*" |
-                Where-Object { $_ -match "\w+\.[\w\.]+" }
+            $packages = Get-Content "$PSScriptRoot\packages.json" |
+                ConvertFrom-Json
+            return $packages.PSObject.Properties | ForEach-Object { $_.Name }
         }
     )]
     [string] $Package,
@@ -155,7 +156,8 @@ $outApkPath = "$packagePath\$Version-revanced.apk"
 if (!$DryRun -and !(Test-Path $apkPath)) {
     Write-Error "The input file $apkPath doesn't exist."
 
-    $url = (Get-Content "./download-urls.json" | ConvertFrom-Json).$Package -replace "\`$version", ($Version -replace "\.", "-")
+    $config = (Get-Content packages.json | ConvertFrom-Json).$Package
+    $url = $config.download_url -replace "\`$version", ($Version -replace "\.", "-")
     Write-Host "Try download the APK from $url"
 
     Reset-Environment
