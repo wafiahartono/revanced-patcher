@@ -9,7 +9,6 @@ Param(
         }
     )]
     [string] $Package,
-    [string] $Keystore,
     [switch] $ForceUpdate,
     [switch] $ListPatches,
     [switch] $DryRun,
@@ -167,8 +166,9 @@ $arguments = `
     "--merge", $assets.integrations.path, `
     "--purge"
 
-if ($Keystore) {
-    $arguments += "--keystore", $Keystore
+$keystorePath = "$packagePath\revanced.keystore"
+if (Test-Path $keystorePath) {
+    $arguments += "--keystore", $keystorePath
 }
 
 if ($options.patches) {
