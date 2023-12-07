@@ -9,6 +9,14 @@ Param(
         }
     )]
     [string] $Package,
+    [ArgumentCompleter(
+        {
+            Param($cmd, $param, $word, $ast, $fbParams)
+            return Get-ChildItem "$PSScriptRoot\$($fbParams.Package)" -Filter "$word*.apk" |
+                Select-Object -ExpandProperty BaseName
+        }
+    )]
+    [string] $Version,
     [switch] $ForceUpdate,
     [switch] $ListPatches,
     [switch] $DryRun,
@@ -129,22 +137,25 @@ if ($ListPatches) {
     return $patches
 }
 
-$versions = $patches[0].compatiblePackages.versions
+if (!$Version) {
+    $versions = $patches | Select-Object @{label = 'versions'; expression = { $_.compatiblePackages.versions } } |
+        Select-Object -ExpandProperty versions -Unique
 
-if ($versions) {
-    $version = $patches[0].compatiblePackages.versions[-1]
-}
-else {
-    $version = "app"
+    if ($versions.Count -eq 0) {
+        $Version = "app"
+    }
+    else {
+        $Version = $versions[-1]
+    }
 }
 
-$apkPath = "$packagePath\$version.apk"
-$outApkPath = "$packagePath\$version-revanced.apk"
+$apkPath = "$packagePath\$Version.apk"
+$outApkPath = "$packagePath\$Version-revanced.apk"
 
 if (!$DryRun -and !(Test-Path $apkPath)) {
     Write-Error "The input file $apkPath doesn't exist."
 
-    $url = (Get-Content "./download-urls.json" | ConvertFrom-Json).$Package -replace "\`$version", ($version -replace "\.", "-")
+    $url = (Get-Content "./download-urls.json" | ConvertFrom-Json).$Package -replace "\`$version", ($Version -replace "\.", "-")
     Write-Host "Try download the APK from $url"
 
     Reset-Environment
