@@ -126,7 +126,7 @@ if ($ListPatches) {
         }
     }
     Reset-Environment
-    return
+    return $patches
 }
 
 $versions = $patches[0].compatiblePackages.versions
