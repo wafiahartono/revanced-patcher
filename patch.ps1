@@ -178,7 +178,7 @@ if ($options.patches) {
     }
 }
 
-$optionsPath = "$packagePath\options.json"
+$optionsPath = "$packagePath\revanced-options.json"
 if (Test-Path $optionsPath) {
     $arguments += "--options", $optionsPath
 }
