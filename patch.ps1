@@ -98,10 +98,10 @@ function Get-GitHubAsset($name, $repo, $assetNamePattern) {
     & curl.exe @($asset.browser_download_url, "--location" , "--output", $assets.$name.path, "--silent")
 }
 
-Get-GitHubAsset "cli" "revanced/revanced-cli" "revanced-cli-.+\.jar"
-Get-GitHubAsset "patches" "revanced/revanced-patches" "revanced-patches-.+\.jar"
-Get-GitHubAsset "patches-json" "revanced/revanced-patches" "patches\.json"
-Get-GitHubAsset "integrations" "revanced/revanced-integrations" "revanced-integrations-.+\.apk"
+Get-GitHubAsset "cli" "revanced/revanced-cli" "revanced-cli-.+\.jar$"
+Get-GitHubAsset "patches" "revanced/revanced-patches" "revanced-patches-.+\.jar$"
+Get-GitHubAsset "patches-json" "revanced/revanced-patches" "patches\.json$"
+Get-GitHubAsset "integrations" "revanced/revanced-integrations" "revanced-integrations-.+\.apk$"
 
 $patches = (Get-Content $assets."patches-json".path | ConvertFrom-Json) | Where-Object {
     if ($_.compatiblePackages.Length -eq 0) { return $true }
@@ -140,13 +140,14 @@ if ($ListPatches) {
 
 if (!$Version) {
     $versions = $patches | Select-Object @{label = 'versions'; expression = { $_.compatiblePackages.versions } } |
-        Select-Object -ExpandProperty versions -Unique
+        Select-Object -ExpandProperty versions -Unique |
+        Sort-Object -Descending
 
     if ($versions.Count -eq 0) {
         $Version = "app"
     }
     else {
-        $Version = $versions[-1]
+        $Version = $versions[0]
     }
 }
 
